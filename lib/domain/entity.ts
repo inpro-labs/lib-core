@@ -33,7 +33,7 @@ export class Entity<
       id = ID.create(props.id as string).unwrap();
     }
 
-    super({ ...props });
+    super({ ...props, id });
 
     this._id = id;
   }

@@ -13,7 +13,7 @@ import { serializeProps } from '../utils/serialize-props';
  * @template T - The type of the aggregate's properties.
  */
 export class Aggregate<
-  T extends object = Record<PropertyKey, unknown>,
+  T extends object = Record<PropertyKey, unknown> & { id?: string | ID },
 > extends AggregateRoot {
   /** Internal properties of the aggregate, including its ID. */
   private _props: T;
@@ -64,6 +64,10 @@ export class Aggregate<
    * @param value - The value to set the property to.
    */
   protected set<K extends keyof T>(key: K, value: T[K]): void {
+    if (key === 'id') {
+      throw new Error('Cannot set the ID of the aggregate');
+    }
+
     this._props[key] = value;
   }
 
@@ -74,6 +78,10 @@ export class Aggregate<
    * @returns The value of the property.
    */
   public get<K extends keyof T>(key: K): T[K] {
+    if (key === 'id') {
+      return this._id as T[K];
+    }
+
     return this._props[key];
   }
 
