@@ -138,4 +138,18 @@ describe('Aggregate', () => {
 
     expect(clone).toEqual(agg);
   });
+
+  it('should return true for equals() if ID is the same', () => {
+    const aggA = makeAggregate(initialProps);
+    const aggB = makeAggregate(initialProps);
+
+    expect(aggA.equals(aggB)).toBe(true);
+  });
+
+  it('should return false for equals() if ID is different', () => {
+    const aggA = makeAggregate(initialProps);
+    const aggB = makeAggregate({ ...initialProps, id: 'b' });
+
+    expect(aggA.equals(aggB)).toBe(false);
+  });
 });

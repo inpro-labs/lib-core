@@ -144,7 +144,7 @@ describe('Entity', () => {
 
     const e2 = new TestEntity({
       id: commonId,
-      name: 'Entity B', // props diferentes
+      name: 'Entity B', // different props
       value: new ValueObject({ teste: 'def' }),
       userId: ID.create('y').unwrap(),
       createdAt: new Date(),
@@ -171,43 +171,5 @@ describe('Entity', () => {
     });
 
     expect(e1.equals(e2)).toBe(false);
-  });
-
-  it('should return true for deepEquals if all props are equal', () => {
-    const createdAt = new Date();
-    const props = {
-      id: ID.create('1').unwrap(),
-      name: 'Equal Entity',
-      value: new ValueObject({ teste: 'x' }),
-      userId: ID.create('2').unwrap(),
-      createdAt,
-    };
-
-    const e1 = new TestEntity(props);
-    const e2 = new TestEntity(props);
-
-    expect(e1.deepEquals(e2)).toBe(true);
-  });
-
-  it('should return false for deepEquals if props are different', () => {
-    const createdAt = new Date();
-
-    const e1 = new TestEntity({
-      id: ID.create('1').unwrap(),
-      name: 'Entity A',
-      value: new ValueObject({ teste: 'abc' }),
-      userId: ID.create('x').unwrap(),
-      createdAt,
-    });
-
-    const e2 = new TestEntity({
-      id: ID.create('1').unwrap(),
-      name: 'Entity B', // diferente
-      value: new ValueObject({ teste: 'abc' }),
-      userId: ID.create('x').unwrap(),
-      createdAt,
-    });
-
-    expect(e1.deepEquals(e2)).toBe(false);
   });
 });

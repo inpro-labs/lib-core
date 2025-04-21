@@ -1,5 +1,4 @@
 import { ID } from './id';
-import isEqual from 'lodash.isequal';
 import { SettersAndGetters } from './setters-and-getters';
 import { Adapter } from './adapter';
 import { serializeProps } from '../utils/serialize-props';
@@ -63,18 +62,14 @@ export class Entity<
    * @param entity - The entity to compare against.
    * @returns `true` if the entities are the same instance or share the same ID.
    */
-  public equals(entity: Entity<T>): boolean {
-    return entity === this || entity.id === this._id;
-  }
-
   /**
-   * Performs a deep comparison of this entity's properties with another's.
+   * Performs a deep equality check between two value objects.
    *
-   * @param entity - The entity to deeply compare against.
-   * @returns `true` if all properties are deeply equal.
+   * @param entity - The entity to compare with.
+   * @returns `true` if both entities have deeply equal properties.
    */
-  public deepEquals(entity: Entity<T>): boolean {
-    return entity === this || isEqual(entity._props, this._props);
+  public equals(entity: Entity<T>): boolean {
+    return this._id.equals(entity._id);
   }
 
   /**

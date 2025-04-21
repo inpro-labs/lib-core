@@ -1,4 +1,4 @@
-import isEqual from 'lodash.isequal';
+import { isDeepStrictEqual } from 'node:util';
 import { SettersAndGetters } from './setters-and-getters';
 import { Adapter } from './adapter';
 import { serializeProps } from '../utils/serialize-props';
@@ -34,23 +34,13 @@ export class ValueObject<
   }
 
   /**
-   * Compares this instance with another by reference.
-   *
-   * @param vo - The value object to compare with.
-   * @returns `true` if both objects are the same instance.
-   */
-  public equals(vo: ValueObject<T>): boolean {
-    return vo === this;
-  }
-
-  /**
    * Performs a deep equality check between two value objects.
    *
    * @param vo - The value object to compare with.
    * @returns `true` if both value objects have deeply equal properties.
    */
-  public deepEquals(vo: ValueObject<T>): boolean {
-    return isEqual(this._props, vo._props);
+  public equals(vo: ValueObject<T>): boolean {
+    return isDeepStrictEqual(this._props, vo._props);
   }
 
   /**

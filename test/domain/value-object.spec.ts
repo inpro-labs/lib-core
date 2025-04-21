@@ -24,26 +24,18 @@ describe('ValueObject', () => {
     expect(vo.fullName).toBe('Max Silva');
   });
 
-  it('should return true with equals() only if same instance', () => {
-    const voA = createVO();
-    const voB = createVO();
-
-    expect(voA.equals(voA)).toBe(true); // mesma instância
-    expect(voA.equals(voB)).toBe(false); // props iguais, instância diferente
-  });
-
   it('should return true with deepEquals() if props are equal', () => {
     const voA = createVO();
     const voB = createVO();
 
-    expect(voA.deepEquals(voB)).toBe(true);
+    expect(voA.equals(voB)).toBe(true);
   });
 
-  it('should return false with deepEquals() if props are different', () => {
+  it('should return false with equals() if props are different', () => {
     const voA = createVO();
     const voB = new FullName({ first: 'João', last: 'Silva' });
 
-    expect(voA.deepEquals(voB)).toBe(false);
+    expect(voA.equals(voB)).toBe(false);
   });
 
   it('should return plain object from toObject()', () => {
@@ -72,7 +64,7 @@ describe('ValueObject', () => {
     const clone = original.clone();
 
     expect(clone).not.toBe(original);
-    expect(clone.deepEquals(original)).toBe(true);
+    expect(clone.equals(original)).toBe(true);
     expect(clone.fullName).toBe(original.fullName);
   });
 });

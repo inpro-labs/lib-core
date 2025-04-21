@@ -93,7 +93,7 @@ export class Aggregate<
    * @returns `true` if the aggregates are the same instance or share the same ID.
    */
   public equals(aggregate: Aggregate<T>): boolean {
-    return aggregate === this || this._id.equals(aggregate.id);
+    return this._id.equals(aggregate.id);
   }
 
   /**

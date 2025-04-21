@@ -1,6 +1,6 @@
 {
   "name": "@inpro-labs/core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Core library for inpro",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -50,7 +50,6 @@
     "zod": "^3.24.2"
   },
   "dependencies": {
-    "@types/lodash.isequal": "^4.5.8",
-    "lodash.isequal": "^4.5.0"
+    "@types/node": "^22.9.0"
   }
 }
