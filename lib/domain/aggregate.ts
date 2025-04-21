@@ -63,7 +63,7 @@ export class Aggregate<
    * @param key - The key of the property to set.
    * @param value - The value to set the property to.
    */
-  protected set<K extends keyof T>(key: K, value: T[K]): void {
+  protected set<K extends keyof Omit<T, 'id'>>(key: K, value: T[K]): void {
     if (key === 'id') {
       throw new Error('Cannot set the ID of the aggregate');
     }
@@ -77,7 +77,7 @@ export class Aggregate<
    * @param key - The key of the property to get.
    * @returns The value of the property.
    */
-  public get<K extends keyof T>(key: K): T[K] {
+  public get<K extends keyof Omit<T, 'id'>>(key: K): T[K] {
     if (key === 'id') {
       return this._id as T[K];
     }

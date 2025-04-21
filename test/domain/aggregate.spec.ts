@@ -23,10 +23,6 @@ class TestAggregate extends Aggregate<TestProps> {
   public applyEvent() {
     this.apply(new TestEvent(this.get('name')));
   }
-
-  public setId(id: string) {
-    this.set('id', id);
-  }
 }
 
 describe('Aggregate', () => {
@@ -155,11 +151,5 @@ describe('Aggregate', () => {
     const aggB = makeAggregate({ ...initialProps, id: 'b' });
 
     expect(aggA.equals(aggB)).toBe(false);
-  });
-
-  it('should throw an error if trying to set the ID', () => {
-    const agg = makeAggregate();
-
-    expect(() => agg.setId('b')).toThrow();
   });
 });

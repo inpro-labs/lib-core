@@ -19,10 +19,6 @@ class TestEntity extends Entity<{
   }) {
     super(props);
   }
-
-  public setId(id: string) {
-    this.set('id', ID.create(id).unwrap());
-  }
 }
 
 class TestEntityAdapter
@@ -175,17 +171,5 @@ describe('Entity', () => {
     });
 
     expect(e1.equals(e2)).toBe(false);
-  });
-
-  it('should throw an error if trying to set the ID', () => {
-    const entity = new TestEntity({
-      id: ID.create('1').unwrap(),
-      name: 'Entity A',
-      value: new ValueObject({ teste: 'abc' }),
-      userId: ID.create('x').unwrap(),
-      createdAt: new Date(),
-    });
-
-    expect(() => entity.setId('2')).toThrow();
   });
 });

@@ -13,8 +13,8 @@ import { IdentifiablePlainify } from '../utils/types';
  * @template Props - The entity's properties.
  */
 export class Entity<
-  T extends object = Record<PropertyKey, any>,
-> extends SettersAndGetters<T> {
+  T extends object = Record<PropertyKey, any> & { id?: string | ID },
+> extends SettersAndGetters<Omit<T, 'id'>> {
   /** The ID of the entity. */
   private readonly _id: ID;
 
@@ -102,6 +102,9 @@ export class Entity<
    * @returns A new instance of the entity with cloned properties.
    */
   public clone(): this {
-    return new (this.constructor as new (props: T) => this)(this._props);
+    return new (this.constructor as new (props: T) => this)({
+      ...this._props,
+      id: this._id,
+    } as T);
   }
 }

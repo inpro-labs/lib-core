@@ -53,20 +53,24 @@ describe('serializeProps', () => {
   });
 
   it('should preserve primitive types', () => {
-    const entity = new Entity({
+    const props = {
       id: 'id-1',
       value: 123,
       status: true,
       createdAt: new Date('2024-01-01'),
-    });
+    };
 
-    const result = serializeProps<typeof entity.props>(entity.props);
+    const entity = new Entity<typeof props>(props);
+
+    const result = serializeProps(entity.props);
 
     expect(result.id).toBe('id-1');
     expect(result.value).toBe(123);
     expect(result.status).toBe(true);
     expect(result.createdAt instanceof Date).toBe(true);
-    expect(result.createdAt.toISOString()).toBe('2024-01-01T00:00:00.000Z');
+    expect((result.createdAt as Date).toISOString()).toBe(
+      '2024-01-01T00:00:00.000Z',
+    );
   });
 
   it('should handle empty props', () => {
