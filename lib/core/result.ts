@@ -18,17 +18,20 @@ export class Result<T = unknown, E extends Error = Error> {
    * @throws If both or neither of `ok` and `err` are provided.
    */
   constructor(ok: T | null, err: E | null) {
-    if (!ok && !err) {
+    const hasOk = ok !== null && ok !== undefined;
+    const hasErr = err !== null && err !== undefined;
+
+    if (!hasOk && !hasErr) {
       throw new Error('Result must have a value or an error');
     }
-    if (ok && err) {
-      throw new Error('Result cannot have both a value and and error');
+    if (hasOk && hasErr) {
+      throw new Error('Result cannot have both a value and an error');
     }
 
-    if (ok !== null) {
-      this.#ok = ok;
+    if (hasOk) {
+      this.#ok = ok as T;
     } else {
-      this.#err = err;
+      this.#err = err as E;
     }
   }
 
@@ -67,21 +70,25 @@ export class Result<T = unknown, E extends Error = Error> {
   /**
    * Returns the success value or throws a custom error message if it's an error.
    *
-   * @param msg - Custom message to throw if this is an error result.
+   * @param msg - The error message or an error instance.
    * @returns The success value.
    * @throws An error with the provided message if this is an error result.
    */
-  expect(msg: string): T {
+  expect(msg: string | E): T {
     if (this.isOk()) {
       return this.#ok as T;
     }
 
     if (this.isErr()) {
+      if (msg instanceof Error) {
+        throw msg;
+      }
+
       throw new Error(msg);
     }
 
     /* istanbul ignore next */
-    throw new Error(msg);
+    throw new Error('Unknown error');
   }
 
   /**

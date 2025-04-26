@@ -54,7 +54,7 @@ describe('Result', () => {
 
   it('should throw when Result is instantiated with both value and error', () => {
     expect(() => new Result(successValue, errorValue)).toThrow(
-      'Result cannot have both a value and and error',
+      'Result cannot have both a value and an error',
     );
   });
 
