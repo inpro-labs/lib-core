@@ -18,8 +18,8 @@ export class Result<T = unknown, E extends Error = Error> {
    * @throws If both or neither of `ok` and `err` are provided.
    */
   constructor(ok: T | null, err: E | null) {
-    const hasOk = ok !== null && ok !== undefined;
-    const hasErr = err !== null && err !== undefined;
+    const hasOk = ok !== null;
+    const hasErr = err !== null;
 
     if (!hasOk && !hasErr) {
       throw new Error('Result must have a value or an error');
@@ -192,6 +192,14 @@ type ResultArray<T extends readonly unknown[], E extends Error> = {
   [K in keyof T]: Result<T[K], E>;
 };
 
+/**
+ * Combines an array of `Result` objects into a single `Result` object.
+ *
+ * @template T - The type of the success value.
+ * @template E - The type of the error value (extends Error).
+ *
+ * @param results - An array of `Result` objects to combine.
+ */
 export function Combine<T extends readonly unknown[], E extends Error>(
   results: ResultArray<T, E>,
 ): Result<T, E> {
