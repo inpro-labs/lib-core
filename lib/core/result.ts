@@ -7,32 +7,18 @@
  * @template E - The error type (extends Error).
  */
 export class Result<T = unknown, E extends Error = Error> {
-  #ok: T | null = null;
-  #err: E | null = null;
+  #value: T | E;
+  #isSuccess: boolean;
 
   /**
    * Internal constructor. Use `Result.ok()` or `Result.err()` to instantiate.
    *
-   * @param ok - The success value (if present).
-   * @param err - The error value (if present).
-   * @throws If both or neither of `ok` and `err` are provided.
+   * @param value - The value (success or error).
+   * @param isSuccess - Whether this is a success result.
    */
-  constructor(ok: T | null, err: E | null) {
-    const hasOk = ok !== null;
-    const hasErr = err !== null;
-
-    if (!hasOk && !hasErr) {
-      throw new Error('Result must have a value or an error');
-    }
-    if (hasOk && hasErr) {
-      throw new Error('Result cannot have both a value and an error');
-    }
-
-    if (hasOk) {
-      this.#ok = ok as T;
-    } else {
-      this.#err = err as E;
-    }
+  constructor(value: T | E, isSuccess: boolean) {
+    this.#value = value;
+    this.#isSuccess = isSuccess;
   }
 
   /**
@@ -43,25 +29,21 @@ export class Result<T = unknown, E extends Error = Error> {
    */
   unwrap(): T {
     if (this.isOk()) {
-      return this.#ok as T;
+      return this.#value as T;
     }
 
-    if (this.isErr()) {
-      throw this.#err as E;
-    }
-    /* istanbul ignore next */
-    throw new Error('Unknown error');
+    throw this.#value as E;
   }
 
   /**
    * Returns the error value or throws an error if it's a successful result.
    *
    * @returns The error value.
-   * @throws The error value if this result is a successful result.
+   * @throws If this result is a successful result.
    */
   unwrapErr(): E {
     if (this.isErr()) {
-      return this.#err as E;
+      return this.#value as E;
     }
 
     throw new Error('Tried to unwrapErr() on a successful Result');
@@ -76,19 +58,14 @@ export class Result<T = unknown, E extends Error = Error> {
    */
   expect(msg: string | E): T {
     if (this.isOk()) {
-      return this.#ok as T;
+      return this.#value as T;
     }
 
-    if (this.isErr()) {
-      if (msg instanceof Error) {
-        throw msg;
-      }
-
-      throw new Error(msg);
+    if (msg instanceof Error) {
+      throw msg;
     }
 
-    /* istanbul ignore next */
-    throw new Error('Unknown error');
+    throw new Error(msg);
   }
 
   /**
@@ -97,7 +74,7 @@ export class Result<T = unknown, E extends Error = Error> {
    * @returns `true` if the result is OK.
    */
   isOk(): this is Result<T, never> {
-    return this.#ok !== null;
+    return this.#isSuccess;
   }
 
   /**
@@ -106,7 +83,7 @@ export class Result<T = unknown, E extends Error = Error> {
    * @returns `true` if the result is an error.
    */
   isErr(): this is Result<never, E> {
-    return this.#err !== null;
+    return !this.#isSuccess;
   }
 
   /**
@@ -115,7 +92,7 @@ export class Result<T = unknown, E extends Error = Error> {
    * @returns The error value or null.
    */
   getErr(): E | null {
-    return this.#err;
+    return this.isErr() ? (this.#value as E) : null;
   }
 
   /**
@@ -131,7 +108,6 @@ export class Result<T = unknown, E extends Error = Error> {
   ): Promise<Result<T, E>> {
     try {
       const value = await promise;
-
       return Ok(value);
     } catch (error) {
       return Err(error as E);
@@ -145,7 +121,7 @@ export class Result<T = unknown, E extends Error = Error> {
    * @returns A `Result` representing success.
    */
   static ok<T>(value: T): Result<T> {
-    return new Result(value, null);
+    return new Result<T, never>(value, true);
   }
 
   /**
@@ -155,7 +131,22 @@ export class Result<T = unknown, E extends Error = Error> {
    * @returns A `Result` representing failure.
    */
   static err<E extends Error>(error: E): Result<never, E> {
-    return new Result(null as never, error);
+    return new Result<never, E>(error, false);
+  }
+
+  /**
+   * Creates a result from a function that may throw an error.
+   *
+   * @param fn - The function to execute.
+   * @param error - The error to return if the function throws an error.
+   * @returns A `Result` representing the result of the function.
+   */
+  static catch<T, E extends Error>(fn: () => T, error?: E): Result<T, E> {
+    try {
+      return Ok(fn());
+    } catch (err) {
+      return Err(error ?? (err as E));
+    }
   }
 }
 
@@ -166,7 +157,7 @@ export class Result<T = unknown, E extends Error = Error> {
  * @returns A `Result` representing success.
  */
 export function Ok<T>(value: T): Result<T, never> {
-  return new Result<T, never>(value, null);
+  return new Result<T, never>(value, true);
 }
 
 /**
@@ -176,30 +167,16 @@ export function Ok<T>(value: T): Result<T, never> {
  * @returns A `Result` representing failure.
  */
 export function Err<E extends Error>(error: E): Result<never, E> {
-  return new Result<never, E>(null, error);
+  return new Result<never, E>(error, false);
 }
 
 /**
  * Combines an array of `Result` objects into a single `Result` object.
- *
- * @template T - The type of the success value.
- * @template E - The type of the error value (extends Error).
- *
- * @param results - An array of `Result` objects to combine.
- * @returns A `Result` object that contains the combined results.
  */
 type ResultArray<T extends readonly unknown[], E extends Error> = {
   [K in keyof T]: Result<T[K], E>;
 };
 
-/**
- * Combines an array of `Result` objects into a single `Result` object.
- *
- * @template T - The type of the success value.
- * @template E - The type of the error value (extends Error).
- *
- * @param results - An array of `Result` objects to combine.
- */
 export function Combine<T extends readonly unknown[], E extends Error>(
   results: ResultArray<T, E>,
 ): Result<T, E> {

@@ -51,18 +51,6 @@ describe('Result', () => {
 
     expect(result.getErr()).toBeNull();
   });
-
-  it('should throw when Result is instantiated with both value and error', () => {
-    expect(() => new Result(successValue, errorValue)).toThrow(
-      'Result cannot have both a value and an error',
-    );
-  });
-
-  it('should throw when Result is instantiated without arguments', () => {
-    expect(() => new Result(null, null)).toThrow(
-      'Result must have a value or an error',
-    );
-  });
 });
 
 describe('Ok and Err helpers', () => {
@@ -120,5 +108,33 @@ describe('Combine()', () => {
 
     expect(result.isErr()).toBe(true);
     expect(result.unwrapErr()).toBe(error);
+  });
+
+  it('catch() should return a successful result', () => {
+    const result = Result.catch(() => {
+      return 'success';
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(result.unwrap()).toBe('success');
+  });
+
+  it('catch() should return an error result', () => {
+    const result = Result.catch(() => {
+      throw new Error('fail');
+    });
+
+    expect(result.isErr()).toBe(true);
+    expect(result.unwrapErr()).toBeInstanceOf(Error);
+  });
+
+  it('should instantiate a result with no value or error', () => {
+    const undefinedResult = Result.ok(undefined);
+    const nullResult = Result.ok(null);
+
+    expect(undefinedResult.isOk()).toBe(true);
+    expect(undefinedResult.unwrap()).toBeUndefined();
+    expect(nullResult.isOk()).toBe(true);
+    expect(nullResult.unwrap()).toBeNull();
   });
 });

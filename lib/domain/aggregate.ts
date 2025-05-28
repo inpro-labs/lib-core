@@ -1,7 +1,7 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { ID } from './id';
 import { Adapter } from './adapter';
-import { IdentifiablePlainify } from '../utils/types';
+import { Plain } from '../utils/types';
 import { serializeProps } from '../utils/serialize-props';
 
 /**
@@ -111,10 +111,8 @@ export class Aggregate<
    * @returns A shallow copy of the aggregate's properties.
    */
   public toObject<To>(adapter: Adapter<this, To>): To;
-  public toObject(): IdentifiablePlainify<T>;
-  public toObject<To>(
-    adapter?: Adapter<this, To>,
-  ): To | IdentifiablePlainify<T> {
+  public toObject(): Plain<T>;
+  public toObject<To>(adapter?: Adapter<this, To>): To | Plain<T> {
     if (adapter?.adaptOne) {
       return adapter.adaptOne(this);
     }
@@ -126,7 +124,7 @@ export class Aggregate<
     return {
       ...plainProps,
       id: this._id.value(),
-    } as IdentifiablePlainify<T>;
+    } as Plain<T>;
   }
 
   /**
