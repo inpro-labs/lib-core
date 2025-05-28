@@ -25,4 +25,4 @@ export type Plainify<T> = T extends
               ? { [K in keyof T]: Plainify<T[K]> }
               : T;
 
-export type IdentifiablePlainify<T> = Plainify<Omit<T, 'id'>> & { id: string };
+export type Plain<T> = Plainify<Omit<T, 'id'>> & { id: string };

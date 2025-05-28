@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { SettersAndGetters } from './setters-and-getters';
 import { Adapter } from './adapter';
 import { serializeProps } from '../utils/serialize-props';
-import { IdentifiablePlainify } from '../utils/types';
+import { Plain } from '../utils/types';
 
 /**
  * Base class for value objects in the domain layer.
@@ -49,9 +49,7 @@ export class ValueObject<
    * @param adapter - An optional adapter to transform the value object's properties.
    * @returns A plain object containing the value object's properties.
    */
-  public toObject<To = IdentifiablePlainify<T>>(
-    adapter?: Adapter<this, To>,
-  ): To {
+  public toObject<To = Plain<T>>(adapter?: Adapter<this, To>): To {
     if (adapter && adapter.adaptOne) {
       return adapter.adaptOne(this);
     }

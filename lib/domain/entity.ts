@@ -2,7 +2,7 @@ import { ID } from './id';
 import { SettersAndGetters } from './setters-and-getters';
 import { Adapter } from './adapter';
 import { serializeProps } from '../utils/serialize-props';
-import { IdentifiablePlainify } from '../utils/types';
+import { Plain } from '../utils/types';
 
 /**
  * Base class for domain entities.
@@ -79,10 +79,8 @@ export class Entity<
    * @returns A shallow copy of the entity's properties.
    */
   public toObject<To>(adapter: Adapter<this, To>): To;
-  public toObject(): IdentifiablePlainify<T>;
-  public toObject<To>(
-    adapter?: Adapter<this, To>,
-  ): To | IdentifiablePlainify<T> {
+  public toObject(): Plain<T>;
+  public toObject<To>(adapter?: Adapter<this, To>): To | Plain<T> {
     if (adapter?.adaptOne) {
       return adapter.adaptOne(this);
     }
@@ -94,7 +92,7 @@ export class Entity<
     return {
       ...plainProps,
       id: this._id.value(),
-    } as IdentifiablePlainify<T>;
+    } as Plain<T>;
   }
   /**
    * Creates a deep clone of the entity.
