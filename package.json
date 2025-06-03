@@ -1,6 +1,6 @@
 {
   "name": "@inpro-labs/core",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Core library for inpro",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
