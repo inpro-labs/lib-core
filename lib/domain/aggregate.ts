@@ -1,8 +1,21 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { ID } from './id';
-import { Adapter } from './adapter';
-import { Plain } from '../utils/types';
 import { serializeProps } from '../utils/serialize-props';
+
+/**
+ * PlainAggregate is a type that represents the plain object representation of an aggregate.
+ * It is used to convert an aggregate to a plain object.
+ * @template T - The type of the aggregate's properties.
+ */
+export type PlainAggregate<T> = {
+  [K in keyof Omit<T, 'id'>]: T[K] extends ID
+    ? string
+    : T[K] extends { toObject(): infer R }
+      ? R
+      : T[K] extends Date
+        ? Date
+        : T[K];
+} & { id: string };
 
 /**
  * Base class for domain aggregates.
@@ -107,16 +120,9 @@ export class Aggregate<
   /**
    * Converts the aggregate's properties to a plain JavaScript object.
    *
-   * @param adapter - An optional adapter to transform the aggregate's properties.
    * @returns A shallow copy of the aggregate's properties.
    */
-  public toObject<To>(adapter: Adapter<this, To>): To;
-  public toObject(): Plain<T>;
-  public toObject<To>(adapter?: Adapter<this, To>): To | Plain<T> {
-    if (adapter?.adaptOne) {
-      return adapter.adaptOne(this);
-    }
-
+  public toObject(): PlainAggregate<T> {
     const plainProps = serializeProps(
       this._props as Record<PropertyKey, unknown>,
     );
@@ -124,7 +130,7 @@ export class Aggregate<
     return {
       ...plainProps,
       id: this._id.value(),
-    } as Plain<T>;
+    } as PlainAggregate<T>;
   }
 
   /**

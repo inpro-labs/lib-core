@@ -1,5 +1,4 @@
 import { ValueObject } from '../../lib/domain/value-object';
-import { Adapter } from '../../lib/domain/adapter';
 
 type FullNameProps = {
   first: string;
@@ -45,18 +44,6 @@ describe('ValueObject', () => {
 
     expect(result).toEqual({ first: 'Max', last: 'Silva' });
     expect(result).not.toBe(vo.props); // cópia, não referência
-  });
-
-  it('should use adapter in toObject() if provided', () => {
-    const vo = createVO();
-
-    const adapter: Adapter<FullName, { fullName: string }> = {
-      adaptOne: (v) => ({ fullName: v.fullName }),
-    };
-
-    const result = vo.toObject(adapter);
-
-    expect(result).toEqual({ fullName: 'Max Silva' });
   });
 
   it('should clone the value object with same props', () => {

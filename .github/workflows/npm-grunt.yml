@@ -3,6 +3,21 @@ name: Publish to GitHub Packages
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - premajor
+          - prepatch
+          - prerelease
+          - from-git
+        default: 'patch'
 
 jobs:
   build-and-publish:
@@ -22,6 +37,12 @@ jobs:
 
       - name: Build with Grunt
         run: npx grunt
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Update version
+        run: npm version ${{ github.event.inputs.version_type || 'patch' }}
 
       - name: Publish package to GitHub Packages
         run: npm publish
