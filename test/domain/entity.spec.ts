@@ -1,4 +1,3 @@
-import { Adapter } from '../../lib/domain/adapter';
 import { Entity } from '../../lib/domain/entity';
 import { ID } from '../../lib/domain/id';
 import { ValueObject } from '../../lib/domain/value-object';
@@ -18,14 +17,6 @@ class TestEntity extends Entity<{
     createdAt: Date;
   }) {
     super(props);
-  }
-}
-
-class TestEntityAdapter
-  implements Adapter<TestEntity, { adaptedValue: string }>
-{
-  adaptOne(entity: TestEntity): { adaptedValue: string } {
-    return { adaptedValue: entity.id.value() };
   }
 }
 
@@ -69,27 +60,6 @@ describe('Entity', () => {
       value: { teste: 'John Doe' },
       userId: '2',
       createdAt,
-    });
-  });
-
-  it('should transform to object with adapter', () => {
-    const createdAt = new Date();
-    const value = new ValueObject({ teste: 'John Doe' });
-
-    const entity = new TestEntity({
-      id: ID.create('1').unwrap(),
-      name: 'John Doe',
-      value,
-      userId: ID.create('2').unwrap(),
-      createdAt,
-    });
-
-    const adapter = new TestEntityAdapter();
-
-    const obj = entity.toObject(adapter);
-
-    expect(obj).toEqual({
-      adaptedValue: '1',
     });
   });
 

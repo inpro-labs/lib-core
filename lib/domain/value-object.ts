@@ -1,8 +1,22 @@
 import { isDeepStrictEqual } from 'node:util';
 import { SettersAndGetters } from './setters-and-getters';
-import { Adapter } from './adapter';
 import { serializeProps } from '../utils/serialize-props';
-import { Plain } from '../utils/types';
+import { ID } from './id';
+
+/**
+ * PlainValueObject is a type that represents the plain object representation of a value object.
+ * It is used to convert a value object to a plain object.
+ * @template T - The type of the value object's properties.
+ */
+export type PlainValueObject<T> = {
+  [K in keyof T]: T[K] extends ID
+    ? string
+    : T[K] extends { toObject(): infer R }
+      ? R
+      : T[K] extends Date
+        ? Date
+        : T[K];
+};
 
 /**
  * Base class for value objects in the domain layer.
@@ -49,12 +63,8 @@ export class ValueObject<
    * @param adapter - An optional adapter to transform the value object's properties.
    * @returns A plain object containing the value object's properties.
    */
-  public toObject<To = Plain<T>>(adapter?: Adapter<this, To>): To {
-    if (adapter && adapter.adaptOne) {
-      return adapter.adaptOne(this);
-    }
-
-    return serializeProps(this._props) as To;
+  public toObject(): PlainValueObject<T> {
+    return serializeProps(this._props);
   }
 
   /**

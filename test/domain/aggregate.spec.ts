@@ -1,10 +1,12 @@
 import { Aggregate } from '../../lib/domain/aggregate';
 import { ID } from '../../lib/domain/id';
-import { Adapter } from '../../lib/domain/adapter';
+import { Entity, ValueObject } from '../../lib/domain';
 
 type TestProps = {
   id?: string | ID;
   name: string;
+  entityTest: TestEntity;
+  valueObjectTest: TestValueObject;
 };
 
 class TestEvent {
@@ -25,36 +27,86 @@ class TestAggregate extends Aggregate<TestProps> {
   }
 }
 
+class TestEntity extends Entity<{
+  id?: ID;
+  nameEntity: string;
+  entityValueObject: TestEntityValueObject;
+}> {
+  constructor(props: {
+    id?: ID;
+    nameEntity: string;
+    entityValueObject: TestEntityValueObject;
+  }) {
+    super(props);
+  }
+}
+
+class TestValueObject extends ValueObject<{ nameValueObject: string }> {
+  constructor(props: { nameValueObject: string }) {
+    super(props);
+  }
+}
+
+class TestEntityValueObject extends ValueObject<{
+  nameEntityValueObject: string;
+}> {
+  constructor(props: { nameEntityValueObject: string }) {
+    super(props);
+  }
+}
+
 describe('Aggregate', () => {
   const initialProps = {
-    id: 'user-123',
-    name: 'Maxwell',
+    id: ID.create('1').unwrap(),
+    name: 'Aggregate',
+    entityTest: new TestEntity({
+      id: ID.create('1').unwrap(),
+      nameEntity: 'Entity',
+      entityValueObject: new TestEntityValueObject({
+        nameEntityValueObject: 'Value Object 1',
+      }),
+    }),
+    valueObjectTest: new TestValueObject({ nameValueObject: 'Value Object 2' }),
   };
 
   const initialPropsWithUndefinedId = {
     id: undefined,
-    name: 'Maxwell',
+    name: 'Aggregate',
   };
 
-  function makeAggregate(props: TestProps = initialProps) {
-    return new TestAggregate({ ...props });
+  function makeAggregate(props: Partial<TestProps> = initialProps) {
+    return new TestAggregate({
+      ...props,
+      name: props.name ?? 'Aggregate',
+      entityTest:
+        props.entityTest ??
+        new TestEntity({
+          nameEntity: 'Entity',
+          entityValueObject: new TestEntityValueObject({
+            nameEntityValueObject: 'Value Object 1',
+          }),
+        }),
+      valueObjectTest:
+        props.valueObjectTest ??
+        new TestValueObject({ nameValueObject: 'Value Object 2' }),
+    });
   }
 
   it('should initialize with a valid ID and props', () => {
     const agg = makeAggregate();
 
     expect(agg.id).toBeInstanceOf(ID);
-    expect(agg.get('name')).toBe('Maxwell');
+    expect(agg.get('name')).toBe('Aggregate');
   });
 
   it('should initialize with a valid ID and props', () => {
     const agg = makeAggregate({
       id: ID.create('123').unwrap(),
-      name: 'Maxwell',
+      name: 'Aggregate',
     });
 
     expect(agg.id).toBeInstanceOf(ID);
-    expect(agg.get('name')).toBe('Maxwell');
+    expect(agg.get('name')).toBe('Aggregate');
   });
   it('should change a property using the protected set method', () => {
     const agg = makeAggregate();
@@ -96,29 +148,18 @@ describe('Aggregate', () => {
     const result = agg.toObject();
 
     expect(result).toEqual({
-      id: 'user-123',
-      name: 'Maxwell',
-    });
-  });
-
-  it('should use custom adapter if provided', () => {
-    const agg = makeAggregate();
-
-    const adapter: Adapter<
-      TestAggregate,
-      { aggregateId: string; upperName: string }
-    > = {
-      adaptOne: (a) => ({
-        aggregateId: a.id.value(),
-        upperName: a.get('name').toUpperCase(),
-      }),
-    };
-
-    const result = agg.toObject(adapter);
-
-    expect(result).toEqual({
-      aggregateId: 'user-123',
-      upperName: 'MAXWELL',
+      id: '1',
+      name: 'Aggregate',
+      entityTest: {
+        id: '1',
+        nameEntity: 'Entity',
+        entityValueObject: {
+          nameEntityValueObject: 'Value Object 1',
+        },
+      },
+      valueObjectTest: {
+        nameValueObject: 'Value Object 2',
+      },
     });
   });
 

@@ -1,8 +1,21 @@
 import { ID } from './id';
 import { SettersAndGetters } from './setters-and-getters';
-import { Adapter } from './adapter';
 import { serializeProps } from '../utils/serialize-props';
-import { Plain } from '../utils/types';
+
+/**
+ * PlainEntity is a type that represents the plain object representation of an entity.
+ * It is used to convert an entity to a plain object.
+ * @template T - The type of the entity's properties.
+ */
+export type PlainEntity<T> = {
+  [K in keyof T]: T[K] extends ID
+    ? string
+    : T[K] extends { toObject(): infer R }
+      ? R
+      : T[K] extends Date
+        ? Date
+        : T[K];
+} & { id: string };
 
 /**
  * Base class for domain entities.
@@ -78,13 +91,7 @@ export class Entity<
    * @param adapter - An optional adapter to transform the entity's properties.
    * @returns A shallow copy of the entity's properties.
    */
-  public toObject<To>(adapter: Adapter<this, To>): To;
-  public toObject(): Plain<T>;
-  public toObject<To>(adapter?: Adapter<this, To>): To | Plain<T> {
-    if (adapter?.adaptOne) {
-      return adapter.adaptOne(this);
-    }
-
+  public toObject(): PlainEntity<T> {
     const plainProps = serializeProps(
       this._props as Record<PropertyKey, unknown>,
     );
@@ -92,7 +99,7 @@ export class Entity<
     return {
       ...plainProps,
       id: this._id.value(),
-    } as Plain<T>;
+    } as PlainEntity<T>;
   }
   /**
    * Creates a deep clone of the entity.
