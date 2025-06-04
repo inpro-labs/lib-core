@@ -30,12 +30,12 @@ class TestAggregate extends Aggregate<TestProps> {
 class TestEntity extends Entity<{
   id?: ID;
   nameEntity: string;
-  entityValueObject: TestEntityValueObject;
+  entityValueObject: TestEntityValueObject[];
 }> {
   constructor(props: {
     id?: ID;
     nameEntity: string;
-    entityValueObject: TestEntityValueObject;
+    entityValueObject: TestEntityValueObject[];
   }) {
     super(props);
   }
@@ -62,9 +62,14 @@ describe('Aggregate', () => {
     entityTest: new TestEntity({
       id: ID.create('1').unwrap(),
       nameEntity: 'Entity',
-      entityValueObject: new TestEntityValueObject({
-        nameEntityValueObject: 'Value Object 1',
-      }),
+      entityValueObject: [
+        new TestEntityValueObject({
+          nameEntityValueObject: 'Value Object 1',
+        }),
+        new TestEntityValueObject({
+          nameEntityValueObject: 'Value Object 2',
+        }),
+      ],
     }),
     valueObjectTest: new TestValueObject({ nameValueObject: 'Value Object 2' }),
   };
@@ -82,9 +87,14 @@ describe('Aggregate', () => {
         props.entityTest ??
         new TestEntity({
           nameEntity: 'Entity',
-          entityValueObject: new TestEntityValueObject({
-            nameEntityValueObject: 'Value Object 1',
-          }),
+          entityValueObject: [
+            new TestEntityValueObject({
+              nameEntityValueObject: 'Value Object 1',
+            }),
+            new TestEntityValueObject({
+              nameEntityValueObject: 'Value Object 2',
+            }),
+          ],
         }),
       valueObjectTest:
         props.valueObjectTest ??
@@ -147,15 +157,22 @@ describe('Aggregate', () => {
 
     const result = agg.toObject();
 
+    console.log(result.entityTest.entityValueObject[0]);
+
     expect(result).toEqual({
       id: '1',
       name: 'Aggregate',
       entityTest: {
         id: '1',
         nameEntity: 'Entity',
-        entityValueObject: {
-          nameEntityValueObject: 'Value Object 1',
-        },
+        entityValueObject: [
+          {
+            nameEntityValueObject: 'Value Object 1',
+          },
+          {
+            nameEntityValueObject: 'Value Object 2',
+          },
+        ],
       },
       valueObjectTest: {
         nameValueObject: 'Value Object 2',
