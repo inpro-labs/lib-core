@@ -15,6 +15,10 @@ on:
           - prepatch
           - prerelease
           - from-git
+defaults:
+  run:
+    shell: bash
+    working-directory: .
 
 jobs:
   release:
