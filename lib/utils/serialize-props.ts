@@ -4,6 +4,9 @@ type WithToObject = { toObject: () => unknown };
 /**
  * Recursively walk through `value` and:
  * - if it’s an ID → return the primitive value
+ * - if it’s a Date → return the Date object
+ * - if it’s a Set → return an array of the serialized values
+ * - if it’s a Map → return a plain object with the serialized values
  * - if it has `toObject()` → call that and then re-serialize the result
  * - if it’s an array → map each element through this same function
  * - if it’s a plain object (but not null) → walk each key
