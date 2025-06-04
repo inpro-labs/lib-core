@@ -1,4 +1,4 @@
-name: Release
+name: lib-core-release
 
 on:
   workflow_dispatch:
