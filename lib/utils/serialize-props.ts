@@ -13,6 +13,27 @@ function deepSerialize(value: unknown): unknown {
   if (value instanceof ID) {
     return value.value();
   }
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (value instanceof Set) {
+    return Array.from(value).map((item) => deepSerialize(item));
+  }
+
+  if (value instanceof Map) {
+    const obj: Record<string, unknown> = {};
+
+    for (const [rawKey, rawVal] of value.entries()) {
+      const keyStr = String(rawKey);
+
+      obj[keyStr] = deepSerialize(rawVal);
+    }
+
+    return obj;
+  }
+
   if (
     typeof value === 'object' &&
     value !== null &&
