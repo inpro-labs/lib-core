@@ -86,7 +86,7 @@ jobs:
       - name: Create Pull Request into main
         id: create-pr
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           PR_URL=$(gh pr create \
             --base main \
