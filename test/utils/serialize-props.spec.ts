@@ -58,6 +58,11 @@ describe('serializeProps', () => {
       value: 123,
       status: true,
       createdAt: new Date('2024-01-01'),
+      set: new Set([1, 2, 3]),
+      map: new Map([
+        ['a', 1],
+        ['b', 2],
+      ]),
     };
 
     const entity = new Entity<typeof props>(props);
@@ -71,6 +76,8 @@ describe('serializeProps', () => {
     expect((result.createdAt as Date).toISOString()).toBe(
       '2024-01-01T00:00:00.000Z',
     );
+    expect(result.set).toEqual([1, 2, 3]);
+    expect(result.map).toEqual({ a: 1, b: 2 });
   });
 
   it('should handle empty props', () => {

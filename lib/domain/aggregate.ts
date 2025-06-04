@@ -10,13 +10,16 @@ import { serializeProps } from '../utils/serialize-props';
 export type PlainAggregate<T> = {
   [K in keyof Omit<T, 'id'>]: T[K] extends ID
     ? string
-    : T[K] extends { toObject(): infer R }
-      ? R
-      : T[K] extends Date
-        ? Date
-        : T[K];
+    : T[K] extends Array<infer U>
+      ? U extends { toObject(): infer R }
+        ? R[]
+        : T[K]
+      : T[K] extends { toObject(): infer R }
+        ? R
+        : T[K] extends Date
+          ? Date
+          : T[K];
 } & { id: string };
-
 /**
  * Base class for domain aggregates.
  *

@@ -8,14 +8,19 @@ import { ID } from './id';
  * It is used to convert a value object to a plain object.
  * @template T - The type of the value object's properties.
  */
+
 export type PlainValueObject<T> = {
   [K in keyof T]: T[K] extends ID
     ? string
-    : T[K] extends { toObject(): infer R }
-      ? R
-      : T[K] extends Date
-        ? Date
-        : T[K];
+    : T[K] extends Array<infer U>
+      ? U extends { toObject(): infer R }
+        ? R[]
+        : T[K]
+      : T[K] extends { toObject(): infer R }
+        ? R
+        : T[K] extends Date
+          ? Date
+          : T[K];
 };
 
 /**
@@ -64,6 +69,7 @@ export class ValueObject<
    * @returns A plain object containing the value object's properties.
    */
   public toObject(): PlainValueObject<T> {
+    console.log('props', this._props);
     return serializeProps(this._props);
   }
 
