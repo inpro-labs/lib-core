@@ -69,7 +69,6 @@ export class ValueObject<
    * @returns A plain object containing the value object's properties.
    */
   public toObject(): PlainValueObject<T> {
-    console.log('props', this._props);
     return serializeProps(this._props);
   }
 

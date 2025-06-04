@@ -1,8 +1,6 @@
-name: Publish to GitHub Packages
+name: Release
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       version_type:
@@ -17,15 +15,16 @@ on:
           - prepatch
           - prerelease
           - from-git
-        default: 'patch'
 
 jobs:
-  build-and-publish:
+  release:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout main branch
+        uses: actions/checkout@v4
         with:
+          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
@@ -48,17 +47,16 @@ jobs:
       - name: Run tests
         run: npm run test
 
-      - name: Commit build changes
+      - name: Bump version
+        id: bump
         run: |
-          git add .
-          git diff --staged --quiet || git commit -m "Build artifacts for version bump"
+          npm version ${{ github.event.inputs.version_type }}
+          echo "NEW_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
 
-      - name: Update version
-        run: npm version ${{ github.event.inputs.version_type || 'patch' }}
-
-      - name: Push changes
+      - name: Create release branch and push
         run: |
-          git push origin main
+          git checkout -b release/v${{ env.NEW_VERSION }}
+          git push origin release/v${{ env.NEW_VERSION }}
           git push origin --tags
 
       - name: Publish package to GitHub Packages
@@ -66,10 +64,23 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify discord
+      - name: Create Pull Request into main
+        id: create-pr
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          PR_URL=$(gh pr create \
+            --base main \
+            --head release/v${{ env.NEW_VERSION }} \
+            --title "Release v${{ env.NEW_VERSION }}" \
+            --body "Version bump and tag for v${{ env.NEW_VERSION }}.")
+
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+      - name: Notify Discord
+        run: |
           curl -H "Content-Type: application/json" \
             -X POST \
-            -d "{\"content\": \"📦 New package published: \`${{ github.repository }}\` v$VERSION\"}" \
+            -d "{\"content\": \"📦 New release published for \`${{ github.repository }}\` version \`${{ env.NEW_VERSION }}\`: PR for main: ${{ steps.create-pr.outputs.pr_url }}\"}" \
             ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
