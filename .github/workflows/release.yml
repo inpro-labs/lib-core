@@ -15,11 +15,16 @@ on:
           - prepatch
           - prerelease
           - from-git
+
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
+      #############################################
+      # 🧱 SETUP & VALIDATION
+      #############################################
+
       - name: Checkout main branch
         uses: actions/checkout@v4
         with:
@@ -44,14 +49,22 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
+      #############################################
+      # 🧪 BUILD & TEST
+      #############################################
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build with Grunt
         run: npx grunt
 
       - name: Run tests
         run: npm run test
+
+      #############################################
+      # 🚀 VERSION & RELEASE
+      #############################################
 
       - name: Bump version
         id: bump
@@ -62,7 +75,7 @@ jobs:
       - name: Create release branch and push
         run: |
           git checkout -b release/v${{ env.NEW_VERSION }}
-          git push origin release/v${{ env.NEW_VERSION }}
+          git push --force origin release/v${{ env.NEW_VERSION }}
           git push origin --tags
 
       - name: Publish package to GitHub Packages
@@ -71,9 +84,9 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Pull Request into main
+        id: create-pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: create-pr
         run: |
           PR_URL=$(gh pr create \
             --base main \
@@ -83,12 +96,13 @@ jobs:
 
           echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
 
+      #############################################
+      # 🔔 NOTIFICATION
+      #############################################
+
       - name: Notify Discord
         run: |
           curl -H "Content-Type: application/json" \
             -X POST \
             -d "{\"content\": \"📦 New release published for \`${{ github.repository }}\` version \`${{ env.NEW_VERSION }}\`: PR for main: ${{ steps.create-pr.outputs.pr_url }}\"}" \
             ${{ secrets.DISCORD_WEBHOOK_URL }}
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
