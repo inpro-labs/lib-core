@@ -25,16 +25,16 @@ jobs:
       # 🧱 SETUP & VALIDATION
       #############################################
 
-      - name: Checkout main branch
+      - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Ensure workflow was triggered from main
+      - name: Ensure workflow was triggered from main or develop
         run: |
-          if [[ "${{ github.ref }}" != "refs/heads/main" ]]; then
-            echo "❌ Você deve rodar este workflow a partir de 'main'. Recebido: ${{ github.ref }}"
+          if [[ "${{ github.ref }}" != "refs/heads/main" && "${{ github.ref }}" != "refs/heads/develop" ]]; then
+            echo "❌ This workflow must be run from either 'main' or 'develop' branch. Received: ${{ github.ref }}"
             exit 1
           fi
 
