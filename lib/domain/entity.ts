@@ -1,25 +1,17 @@
 import { ID } from './id';
 import { SettersAndGetters } from './setters-and-getters';
 import { serializeProps } from '../utils/serialize-props';
+import { DeepPlain } from '@/utils/deep-plain';
 
 /**
  * PlainEntity is a type that represents the plain object representation of an entity.
  * It is used to convert an entity to a plain object.
  * @template T - The type of the entity's properties.
  */
-export type PlainEntity<T> = {
-  [K in keyof T]: T[K] extends ID
-    ? string
-    : T[K] extends Array<infer U>
-      ? U extends { toObject(): infer R }
-        ? R[]
-        : T[K]
-      : T[K] extends { toObject(): infer R }
-        ? R
-        : T[K] extends Date
-          ? Date
-          : T[K];
-} & { id: string };
+export type PlainEntity<T extends { id?: string | ID }> = Omit<
+  DeepPlain<T>,
+  'id'
+> & { id: string };
 
 /**
  * Base class for domain entities.
