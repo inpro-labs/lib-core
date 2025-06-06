@@ -1,15 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 import { SettersAndGetters } from './setters-and-getters';
 import { serializeProps } from '../utils/serialize-props';
-import { DeepPlain } from '@/utils/deep-plain';
-
-/**
- * PlainValueObject is a type that represents the plain object representation of a value object.
- * It is used to convert a value object to a plain object.
- * @template T - The type of the value object's properties.
- */
-
-export type PlainValueObject<T> = DeepPlain<T>;
+import { PlainValueObject } from '../utils/deep-plain';
 
 /**
  * Base class for value objects in the domain layer.
