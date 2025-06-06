@@ -7,6 +7,7 @@ type TestProps = {
   name: string;
   entityTest: TestEntity;
   valueObjectTest: TestValueObject;
+  myObjects: { valueObjectTest: TestValueObject[] }[];
 };
 
 class TestEvent {
@@ -99,6 +100,13 @@ describe('Aggregate', () => {
       valueObjectTest:
         props.valueObjectTest ??
         new TestValueObject({ nameValueObject: 'Value Object 2' }),
+      myObjects: props.myObjects ?? [
+        {
+          valueObjectTest: [
+            new TestValueObject({ nameValueObject: 'Value Object 1' }),
+          ],
+        },
+      ],
     });
   }
 
@@ -157,8 +165,6 @@ describe('Aggregate', () => {
 
     const result = agg.toObject();
 
-    console.log(result.entityTest.entityValueObject[0]);
-
     expect(result).toEqual({
       id: '1',
       name: 'Aggregate',
@@ -177,6 +183,11 @@ describe('Aggregate', () => {
       valueObjectTest: {
         nameValueObject: 'Value Object 2',
       },
+      myObjects: [
+        {
+          valueObjectTest: [{ nameValueObject: 'Value Object 1' }],
+        },
+      ],
     });
   });
 
